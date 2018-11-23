@@ -113,6 +113,7 @@ namespace agora {
                 string str_name = (string)name;
                 string str_appliteDir = (string)applitDir;
                 string str_cfgPath = (string)cfgPath;
+                config.isAudioOnly = true;
                 config.appliteDir = const_cast<char*>(str_appliteDir.c_str());
                 config.cfgFilePath = const_cast<char*>(str_cfgPath.c_str());
                 config.isMixingEnabled = true;
