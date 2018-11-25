@@ -1,6 +1,4 @@
-FROM node:slim as build-env
-ADD sources.list  /etc/apt/sources.list
-RUN apt-get update &&  apt-get install -y make  g++ python && npm i -g node-gyp --registry=https://registry.npm.taobao.org
+FROM node-ext-builder as build-env
 
 # Bundle app source
 COPY ./record  /app/record
