@@ -14,5 +14,5 @@ FROM node:slim
 COPY --from=build-env /app/record/AgoraRecordSdk.js ./record/AgoraRecordSdk.js
 COPY --from=build-env /app/record/agorasdk.node ./record/agorasdk.node
 COPY --from=build-env /app/server ./server
-EXPOSE  82
+EXPOSE  3000
 CMD node server/app.js

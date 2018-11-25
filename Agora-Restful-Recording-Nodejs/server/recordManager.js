@@ -65,6 +65,9 @@ class RecordManager{
 
     subscribeEvents(recorder) {
         let { sdk, sid, appid, channel } = recorder;
+        sdk.on('leavechannel', (code) => {
+            // TODO: upload record
+        })
         sdk.on("error", (err, stat) => {
             console.error(`sdk stopped due to err code: ${err} stat: ${stat}`);
             console.log(`stop recorder ${appid} ${channel} ${sid}`)

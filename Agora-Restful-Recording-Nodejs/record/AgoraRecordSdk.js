@@ -22,6 +22,9 @@ class AgoraRecordSdk extends EventEmitter {
         this.onEvent("joinchannel", (channel, uid) => {
             fire('joinchannel', channel, uid);
         });
+        this.onEvent("leavechannel", (code) => {
+            fire('leavechannel', code)
+        })
         this.onEvent("error", (err, stat) => {
             fire('error', err, stat);
         });
