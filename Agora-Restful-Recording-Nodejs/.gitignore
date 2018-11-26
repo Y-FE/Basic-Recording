@@ -5,3 +5,4 @@ AgoraCoreService
 *.node
 output
 .vscode
+server/config.json
