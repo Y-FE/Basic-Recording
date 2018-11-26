@@ -1,1 +1,0 @@
-docker build -t ars-node . && docker save -o ars-node ars-node

@@ -119,12 +119,12 @@ namespace agora {
                 config.appliteDir = const_cast<char*>(str_appliteDir.c_str());
                 config.cfgFilePath = const_cast<char*>(str_cfgPath.c_str());
                 config.isMixingEnabled = true;
-                config.mixedVideoAudio = true;
+                config.mixedVideoAudio = false;
                 config.idleLimitSec = 10;
                 // config.decodeVideo = agora::linuxsdk::VIDEO_FORMAT_MIX_JPG_FILE_TYPE;
                 // config.channelProfile = agora::linuxsdk::CHANNEL_PROFILE_LIVE_BROADCASTING;
                 // config.captureInterval = 1;
-                config.triggerMode = agora::linuxsdk::AUTOMATICALLY_MODE;
+                // config.triggerMode = agora::linuxsdk::AUTOMATICALLY_MODE;
                 // config.mixResolution = "640,480,15,500";
 
                 // agora::linuxsdk::VideoMixingLayout layout = pRecording->m_agorasdk->getMixLayout();

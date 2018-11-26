@@ -13,7 +13,7 @@ app.post('/recorder/v1/start', (req, res, next) => {
     let { body } = req;
     let { channel, sid } = body;
     let appid = config.appid;
-    let key = null;
+    let key = getToken(channel);
     if (!appid) {
         throw new Error("appid is mandatory");
     }
