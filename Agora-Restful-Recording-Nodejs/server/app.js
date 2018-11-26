@@ -1,14 +1,19 @@
 const express = require('express')
 const app = express()
-const port = 3000
+const port = 9640
 const RecordManager = require('./recordManager')
 const bodyParser = require('body-parser')
+const { getToken } = require('./accessToken');
+
+const config = require('./config');
 
 app.use(bodyParser.json());
 
 app.post('/recorder/v1/start', (req, res, next) => {
     let { body } = req;
-    let { appid, channel, key } = body;
+    let { channel, sid } = body;
+    let appid = config.appid;
+    let key = null;
     if (!appid) {
         throw new Error("appid is mandatory");
     }
@@ -16,7 +21,7 @@ app.post('/recorder/v1/start', (req, res, next) => {
         throw new Error("channel is mandatory");
     }
 
-    RecordManager.start(key, appid, channel).then(recorder => {
+    RecordManager.start(key, appid, channel, sid).then(recorder => {
         //start recorder success
         res.status(200).json({
             success: true,

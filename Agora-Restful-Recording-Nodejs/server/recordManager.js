@@ -2,6 +2,7 @@ const AgoraRecordingSDK = require("../record/AgoraRecordSdk");
 const path = require("path");
 const fs = require("fs");
 const uuidv4 = require('uuid/v4');
+const { upload } = require('./uploader');
 
 class RecordManager{
     constructor() {
@@ -30,26 +31,29 @@ class RecordManager{
         })
     }
 
-    start(key, appid, channel) {
+    start(key, appid, channel, prevSid) {
         return new Promise((resolve, reject) => {
+            if (prevSid) {
+                // 对于重复发送的 start 请求
+                let recorder = this.recorders[sid];
+                if (recorder) {
+                    console.log(`recorder already started ${sid}`);
+                    return resolve(recorder);
+                } else {
+                    console.log(`recorder exited on timeout ${sid}, starting new ......`);
+                }
+            }
+
             const sid = uuidv4();
             this.initStorage(appid, channel, sid).then(storagePath => {
                 let sdk = new AgoraRecordingSDK();
 
-                let layout = {
-                    "canvasWidth": 640,
-                    "canvasHeight": 480,
-                    "backgroundColor": "#00ff00",
-                    "regions": []
-                }
                 let recorder = {
                     appid: appid,
                     channel: channel,
                     sdk: sdk,
-                    sid: sid,
-                    layout: layout
+                    sid: sid
                 };
-                sdk.setMixLayout(layout);
 
                 sdk.joinChannel(key || null, channel, 0, appid, storagePath).then(() => {
                     this.subscribeEvents(recorder);
@@ -67,6 +71,8 @@ class RecordManager{
         let { sdk, sid, appid, channel } = recorder;
         sdk.on('leavechannel', (code) => {
             // TODO: upload record
+            let recordPath = path.resolve(__dirname, `./output/${sid}`);
+            upload(channel, recordPath);
         })
         sdk.on("error", (err, stat) => {
             console.error(`sdk stopped due to err code: ${err} stat: ${stat}`);
@@ -76,44 +82,9 @@ class RecordManager{
         });
         sdk.on("userleave", (uid) => {
             //rearrange layout when user leaves
-            sdk.layout.regions = sdk.layout.regions.filter((region) => {
-                return region.uid !== uid
-            })
-            sdk.setMixLayout(sdk.layout);
         });
         sdk.on("userjoin", function (uid) {
             //rearrange layout when new user joins
-            let region = {
-                "x": 0,
-                "y": 0,
-                "width": 320,
-                "height": 240,
-                "zOrder": 1,
-                "alpha": 1,
-                "uid": uid
-            }
-            let {layout} = sdk;
-            switch(layout.regions.length) {
-                case 0:
-                    region.x = 0;
-                    region.y = 0;
-                    break;
-                case 1:
-                    region.x = 320;
-                    region.y = 0;
-                    break;
-                case 2:
-                    region.x = 0;
-                    region.y = 240;
-                    break;
-                case 3:
-                    region.x = 320;
-                    region.y = 240;
-                default:
-                    break;
-            }
-            layout.regions.push(region)
-            sdk.setMixLayout(layout);
         });
     }
 
