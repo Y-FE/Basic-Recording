@@ -1,4 +1,5 @@
 const axios = require('axios');
+const config = require('./config');
 
 exports.push = async function push(channel, timestamp, url, originUrl, formatInfo) {
     const postData = {
@@ -11,6 +12,5 @@ exports.push = async function push(channel, timestamp, url, originUrl, formatInf
         url,
         origin_url: origin_url
     }
-    const pushUrl = 'http://yi-you.org/api/class-audio/push';
-    return axios.post(pushUrl, postData);
+    return axios.post(config.pushUrl, postData);
 }
