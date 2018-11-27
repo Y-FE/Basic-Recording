@@ -128,6 +128,7 @@ namespace agora {
                 config.isMixingEnabled = true;
                 config.mixedVideoAudio = false;
                 config.idleLimitSec = 10;
+                config.decodeAudio = agora::linuxsdk::AUDIO_FORMAT_MIXED_PCM_FRAME_TYPE;
                 // config.decodeVideo = agora::linuxsdk::VIDEO_FORMAT_MIX_JPG_FILE_TYPE;
                 // config.channelProfile = agora::linuxsdk::CHANNEL_PROFILE_LIVE_BROADCASTING;
                 // config.captureInterval = 1;

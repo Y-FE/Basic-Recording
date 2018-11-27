@@ -3,6 +3,8 @@ const path = require("path");
 const fs = require("fs");
 const uuidv4 = require('uuid/v4');
 const { upload } = require('./uploader');
+const { push } = require('./pusher');
+const { getAudioInfo } = require('./audioInfo');
 
 class RecordManager{
     constructor() {
@@ -69,10 +71,21 @@ class RecordManager{
 
     subscribeEvents(recorder) {
         let { sdk, sid, appid, channel } = recorder;
-        sdk.on('leavechannel', (code) => {
-            // TODO: upload record
+        sdk.on('leavechannel', async (code) => {
+            delete this.recorders[`${sid}`];
             let recordPath = path.resolve(__dirname, `./output/${sid}`);
-            upload(channel, recordPath);
+            let files = await getAACFiles(recordPath);
+            for (let file of files) {
+                let url = await upload(channel, recordPath);
+                let fileInfo = await getAudioInfo(recordPath);
+                let timestamp = parseInt(fs.statSync(recordPath).birthtimeMs);
+                await push(channel, timestamp, url, 'none', fileInfo);
+            }
+            fs.rmdir(recordPath, (err) => {
+                if (err) {
+                    console.log(err);
+                }
+            });
         })
         sdk.on("error", (err, stat) => {
             console.error(`sdk stopped due to err code: ${err} stat: ${stat}`);
@@ -95,11 +108,23 @@ class RecordManager{
             let {sdk, appid, channel} = recorder;
             sdk.leaveChannel();
             console.log(`stop recorder ${appid} ${channel} ${sid}`)
-            delete this.recorders[`${sid}`];
+            // delete this.recorders[`${sid}`];
         } else {
             throw new Error('recorder not exists');
         }
     }
+}
+
+function getAACFiles(recordPath) {
+    return new Promise((resolve, reject) => {
+        fs.readdir(recordPath, (err, files) => {
+            if (err) {
+                reject(err);
+                return;
+            }
+            resolve(files.filter(file => path.extname(file) === '.aac'));
+        })
+    })
 }
 
 

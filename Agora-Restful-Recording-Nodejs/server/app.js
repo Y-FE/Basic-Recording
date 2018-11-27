@@ -46,6 +46,13 @@ app.post('/recorder/v1/stop', (req, res, next) => {
     });
 })
 
+app.head('/health_check', (req, res, next) => {
+    res.status(200).send('ok');
+})
+app.get('/health_check', (req, res, next) => {
+    res.status(200).send('ok');
+})
+
 app.use( (err, req, res, next) => {
     console.error(err.stack)
     res.status(500).json({
