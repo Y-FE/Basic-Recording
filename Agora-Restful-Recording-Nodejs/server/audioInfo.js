@@ -9,7 +9,7 @@ exports.getAudioInfo = async function (filePath) {
             }
             try {
                 let info = JSON.parse(stdout);
-                resolve(info);
+                resolve(info.format);
             } catch (e) {
                 reject(e);
             }

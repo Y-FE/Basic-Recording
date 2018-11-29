@@ -46,10 +46,10 @@ app.post('/recorder/v1/stop', (req, res, next) => {
     });
 })
 
-app.head('/health_check', (req, res, next) => {
+app.head('/health-check', (req, res, next) => {
     res.status(200).send('ok');
 })
-app.get('/health_check', (req, res, next) => {
+app.get('/health-check', (req, res, next) => {
     res.status(200).send('ok');
 })
 
