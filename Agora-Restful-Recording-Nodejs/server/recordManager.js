@@ -84,9 +84,10 @@ class RecordManager {
                 let recordPath = path.resolve(__dirname, `./output/${sid}`);
                 let files = await getAACFiles(recordPath);
                 for (let file of files) {
+                    let fileStat = fs.statSync(file)
                     let url = await upload(channel, file);
                     let fileInfo = await getAudioInfo(file);
-                    let timestamp = parseInt(fs.statSync(file).birthtimeMs);
+                    let timestamp = parseInt(fileStat.atimeMs);
                     await push(channel, timestamp, url, "none", fileInfo);
                     fs.unlink(file, (err) => {
                         if (err) {
@@ -114,7 +115,6 @@ class RecordManager {
             console.error(`sdk stopped due to err code: ${err} stat: ${stat}`);
             console.log(`stop recorder ${appid} ${channel} ${sid}`);
             //clear recorder if error received
-            delete this.recorders[`${sid}`];
         });
         sdk.on("userleave", uid => {
             console.log(`user leave ${uid}`);

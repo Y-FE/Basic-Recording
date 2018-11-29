@@ -1,1 +1,1 @@
-docker build -t ars-node ../Agora-Restful-Recording-Nodejs && docker save -o ars-node ars-node
+docker build -t ars-node ../Agora-Restful-Recording-Nodejs
