@@ -13,7 +13,7 @@ app.post('/recorder/v1/start', (req, res, next) => {
     let { body } = req;
     let { channel, sid } = body;
     let appid = config.appid;
-    let key = getToken(channel);
+    let key = config.useToken && getToken(channel);
     if (!appid) {
         throw new Error("appid is mandatory");
     }
@@ -22,6 +22,30 @@ app.post('/recorder/v1/start', (req, res, next) => {
     }
 
     RecordManager.start(key, appid, channel, sid).then(recorder => {
+        //start recorder success
+        res.status(200).json({
+            success: true,
+            sid: recorder.sid
+        });
+    }).catch((e) => {
+        //start recorder failed
+        next(e);
+    });
+})
+
+app.post('/recorder/v1/start/video', (req, res, next) => {
+    let { body } = req;
+    let { channel, sid } = body;
+    let appid = config.appid;
+    let key = config.useToken && getToken(channel);
+    if (!appid) {
+        throw new Error("appid is mandatory");
+    }
+    if (!channel) {
+        throw new Error("channel is mandatory");
+    }
+
+    RecordManager.startVideo(key, appid, channel, sid).then(recorder => {
         //start recorder success
         res.status(200).json({
             success: true,

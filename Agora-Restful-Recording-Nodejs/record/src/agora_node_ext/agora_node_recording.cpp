@@ -122,41 +122,41 @@ namespace agora {
 
                 config.lowUdpPort = 40000;
                 config.highUdpPort = 41000;
-                config.isAudioOnly = true;
+                // config.isAudioOnly = true;
                 config.appliteDir = const_cast<char*>(str_appliteDir.c_str());
                 config.cfgFilePath = const_cast<char*>(str_cfgPath.c_str());
                 config.isMixingEnabled = true;
-                config.mixedVideoAudio = false;
+                config.mixedVideoAudio = true;
                 config.idleLimitSec = 10;
                 // config.decodeAudio = agora::linuxsdk::AUDIO_FORMAT_MIXED_PCM_FRAME_TYPE;
                 // config.decodeVideo = agora::linuxsdk::VIDEO_FORMAT_MIX_JPG_FILE_TYPE;
-                // config.channelProfile = agora::linuxsdk::CHANNEL_PROFILE_LIVE_BROADCASTING;
+                config.channelProfile = agora::linuxsdk::CHANNEL_PROFILE_LIVE_BROADCASTING;
                 // config.captureInterval = 1;
-                // config.triggerMode = agora::linuxsdk::AUTOMATICALLY_MODE;
-                // config.mixResolution = "640,480,15,500";
+                // config.triggerMode = agora::linuxsdk::AUTOMATICALLY_MODE; // TODO: 
+                config.mixResolution = "1280,720,15,2400";
 
-                // agora::linuxsdk::VideoMixingLayout layout = pRecording->m_agorasdk->getMixLayout();
-                // std::stringstream out;
-                // out << layout.canvasWidth << "x" << layout.canvasHeight;
-                // string resolutionKey = out.str();
-                // string resolutionValue;
-                // map<string, string>::iterator it = pRecording->m_resolutionMap.find(resolutionKey);
-                // if (it == pRecording->m_resolutionMap.end()) {
-                //     // no values found, throw error
-                //     cout << "unsupported resolution" << endl;
-                //     int err = 2000, stat_code = 4;
-                //     pRecording->m_agorasdk->emitError(err, stat_code);
-                //     break;
-                // } else {
-                //     resolutionValue = pRecording->m_resolutionMap[it->first];
-                // }
-                // out.str("");
-                // out << layout.canvasWidth << "," << layout.canvasHeight << ",15," << resolutionValue;
-                // string mixResolution = out.str();
-                // config.mixResolution = &mixResolution[0u];
+                agora::linuxsdk::VideoMixingLayout layout = pRecording->m_agorasdk->getMixLayout();
+                std::stringstream out;
+                out << layout.canvasWidth << "x" << layout.canvasHeight;
+                string resolutionKey = out.str();
+                string resolutionValue;
+                map<string, string>::iterator it = pRecording->m_resolutionMap.find(resolutionKey);
+                if (it == pRecording->m_resolutionMap.end()) {
+                    // no values found, throw error
+                    cout << "unsupported resolution" << endl;
+                    int err = 2000, stat_code = 4;
+                    pRecording->m_agorasdk->emitError(err, stat_code);
+                    break;
+                } else {
+                    resolutionValue = pRecording->m_resolutionMap[it->first];
+                }
+                out.str("");
+                out << layout.canvasWidth << "," << layout.canvasHeight << ",15," << resolutionValue;
+                string mixResolution = out.str();
+                config.mixResolution = &mixResolution[0u];
 
                 //todo
-                // pRecording->m_agorasdk->updateMixModeSetting(0, 0, true);
+                pRecording->m_agorasdk->updateMixModeSetting(0, 0, true);
                 int result = pRecording->m_agorasdk->createChannel(str_appid, str_key, str_name, uid, config);
                 cout << "pRecording->m_agorasdk->createChannel return result:" << result << endl;
                 napi_set_int_result(args, result);
