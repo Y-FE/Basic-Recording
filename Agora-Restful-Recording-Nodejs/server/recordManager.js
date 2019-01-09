@@ -260,7 +260,7 @@ function getAACFiles(recordPath) {
             }
             resolve(
                 files
-                    .filter(file => path.extname(file) === ".aac")
+                    .filter(file => path.extname(file) === ".aac" || path.extname(file) === ".mp4")
                     .map(file => path.join(recordPath, file))
             );
         });
