@@ -95,11 +95,11 @@ class RecordManager {
                 let sdk = new AgoraRecordingSDK();
 
                 let layout = {
-                    "canvasWidth": 1280,
-                    "canvasHeight": 720,
-                    "backgroundColor": "#000000",
-                    "regions": []
-                }
+                    canvasWidth: 1280,
+                    canvasHeight: 720,
+                    backgroundColor: "#000000",
+                    regions: []
+                };
 
                 let recorder = {
                     appid: appid,
@@ -128,42 +128,43 @@ class RecordManager {
 
     subscribeEvents(recorder) {
         let { sdk, sid, appid, channel } = recorder;
-        sdk.on("leavechannel", async code => {
-            delete this.recorders[`${sid}`];
-            try {
-                let recordPath = path.resolve(__dirname, `./output/${sid}`);
-                let files = await getAACFiles(recordPath);
-                for (let file of files) {
-                    let fileStat = fs.statSync(file)
-                    let url = await upload(channel, file);
-                    let fileInfo = await getAudioInfo(file);
-                    let timestamp = parseInt(fileStat.atimeMs);
-                    await push(channel, timestamp, url, "none", fileInfo);
-                    fs.unlink(file, (err) => {
-                        if (err) {
-                            console.log(err);
-                            return;
-                        }
-                    })
-                }
-                console.log(`${channel} record in ${sid} already pushed!`);
-                setTimeout(() => {
-                    rimraf(recordPath, err => {
-                        if (err) {
-                            console.log(err);
-                            return;
-                        }
-                    });
-                }, 86400000);
-                
-            } catch (e) {
-                console.log(e);
-                console.log(`end record error: ${sid} ${channel}`);
-            }
-        });
+        sdk.on("leavechannel", async code => {});
         sdk.on("error", (err, stat) => {
             console.error(`sdk stopped due to err code: ${err} stat: ${stat}`);
             console.log(`stop recorder ${appid} ${channel} ${sid}`);
+            if (code === 3) {
+                console.log("leave channel with no user in, start upload");
+                delete this.recorders[`${sid}`];
+                try {
+                    let recordPath = path.resolve(__dirname, `./output/${sid}`);
+                    let files = await getAACFiles(recordPath);
+                    for (let file of files) {
+                        let fileStat = fs.statSync(file);
+                        let url = await upload(channel, file);
+                        let fileInfo = await getAudioInfo(file);
+                        let timestamp = parseInt(fileStat.atimeMs);
+                        await push(channel, timestamp, url, "none", fileInfo);
+                        fs.unlink(file, err => {
+                            if (err) {
+                                console.log(err);
+                                return;
+                            }
+                        });
+                    }
+                    console.log(`${channel} record in ${sid} already pushed!`);
+                    setTimeout(() => {
+                        rimraf(recordPath, err => {
+                            if (err) {
+                                console.log(err);
+                                return;
+                            }
+                        });
+                    }, 86400000);
+                } catch (e) {
+                    console.log(e);
+                    console.log(`end record error: ${sid} ${channel}`);
+                }
+            }
             //clear recorder if error received
         });
         sdk.on("userleave", uid => {
@@ -172,7 +173,7 @@ class RecordManager {
 
             let recorder = this.find(sid);
 
-            if(!recorder) {
+            if (!recorder) {
                 console.error("no reocrder found");
                 return;
             }
@@ -185,17 +186,17 @@ class RecordManager {
                 return;
             }
 
-            let {layout} = recorder;
-            layout.regions = layout.regions.filter((region) => {
-                return region.uid !== uid
-            })
+            let { layout } = recorder;
+            layout.regions = layout.regions.filter(region => {
+                return region.uid !== uid;
+            });
             sdk.setMixLayout(layout);
         });
         sdk.on("userjoin", uid => {
             //rearrange layout when new user joins
             let recorder = this.find(sid);
 
-            if(!recorder) {
+            if (!recorder) {
                 console.error("no reocrder found");
                 return;
             }
@@ -209,17 +210,17 @@ class RecordManager {
                 return;
             }
 
-            let {layout} = recorder;
+            let { layout } = recorder;
 
             let region = {
-                "x": 0,
-                "y": 0,
-                "width": 320,
-                "height": 240,
-                "zOrder": 1,
-                "alpha": 1,
-                "uid": uid
-            }
+                x: 0,
+                y: 0,
+                width: 320,
+                height: 240,
+                zOrder: 1,
+                alpha: 1,
+                uid: uid
+            };
             if (uid === 1) {
                 region.width = 960;
                 region.height = 720;
@@ -260,7 +261,11 @@ function getAACFiles(recordPath) {
             }
             resolve(
                 files
-                    .filter(file => path.extname(file) === ".aac" || path.extname(file) === ".mp4")
+                    .filter(
+                        file =>
+                            path.extname(file) === ".aac" ||
+                            path.extname(file) === ".mp4"
+                    )
                     .map(file => path.join(recordPath, file))
             );
         });
