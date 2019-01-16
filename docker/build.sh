@@ -1,1 +1,1 @@
-docker build -t ars-node ../Agora-Restful-Recording-Nodejs
+docker build -t ars-node-video ../Agora-Restful-Recording-Nodejs

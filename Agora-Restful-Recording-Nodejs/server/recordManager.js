@@ -129,7 +129,7 @@ class RecordManager {
     subscribeEvents(recorder) {
         let { sdk, sid, appid, channel } = recorder;
         sdk.on("leavechannel", async code => {});
-        sdk.on("error", (err, stat) => {
+        sdk.on("error", async (err, stat) => {
             console.error(`sdk stopped due to err code: ${err} stat: ${stat}`);
             console.log(`stop recorder ${appid} ${channel} ${sid}`);
             if (code === 3) {
