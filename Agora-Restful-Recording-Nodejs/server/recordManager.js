@@ -128,12 +128,18 @@ class RecordManager {
 
     subscribeEvents(recorder) {
         let { sdk, sid, appid, channel } = recorder;
-        sdk.on("leavechannel", async code => {});
+        sdk.on("leavechannel", async code => {
+            console.log("leave channel with no user in, start upload");
+            
+        });
         sdk.on("error", async (err, stat) => {
             console.error(`sdk stopped due to err code: ${err} stat: ${stat}`);
             console.log(`stop recorder ${appid} ${channel} ${sid}`);
-            if (code === 3) {
+            if (err === 3) {
                 console.log("leave channel with no user in, start upload");
+                if (!this.recorders[`${sid}`]) {
+                    return;
+                }
                 delete this.recorders[`${sid}`];
                 try {
                     let recordPath = path.resolve(__dirname, `./output/${sid}`);
@@ -245,7 +251,39 @@ class RecordManager {
             let { sdk, appid, channel } = recorder;
             sdk.leaveChannel();
             console.log(`stop recorder ${appid} ${channel} ${sid}`);
+            // delete this.recorders[`${sid}`];
             delete this.recorders[`${sid}`];
+            setTimeout(async () => {
+                try {
+                    let recordPath = path.resolve(__dirname, `./output/${sid}`);
+                    let files = await getAACFiles(recordPath);
+                    for (let file of files) {
+                        let fileStat = fs.statSync(file);
+                        let url = await upload(channel, file);
+                        let fileInfo = await getAudioInfo(file);
+                        let timestamp = parseInt(fileStat.atimeMs);
+                        await push(channel, timestamp, url, "none", fileInfo);
+                        fs.unlink(file, err => {
+                            if (err) {
+                                console.log(err);
+                                return;
+                            }
+                        });
+                    }
+                    console.log(`${channel} record in ${sid} already pushed!`);
+                    setTimeout(() => {
+                        rimraf(recordPath, err => {
+                            if (err) {
+                                console.log(err);
+                                return;
+                            }
+                        });
+                    }, 86400000);
+                } catch (e) {
+                    console.log(e);
+                    console.log(`end record error: ${sid} ${channel}`);
+                }
+            }, 10000);
         } else {
             throw new Error("recorder not exists");
         }
