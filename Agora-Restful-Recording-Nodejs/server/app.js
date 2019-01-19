@@ -39,10 +39,10 @@ app.post('/recorder/v1/start/video', (req, res, next) => {
     let appid = config.appid;
     let key = config.useToken && getToken(channel);
     if (!appid) {
-        throw new Error("appid is mandatory");
+        next(new Error("appid is mandatory"))
     }
     if (!channel) {
-        throw new Error("channel is mandatory");
+        next(new Error("channel is mandatory"));
     }
 
     RecordManager.startVideo(key, appid, channel, sid).then(recorder => {
@@ -64,10 +64,15 @@ app.post('/recorder/v1/stop', (req, res, next) => {
         throw new Error("sid is mandatory");
     }
 
-    RecordManager.stop(sid);
-    res.status(200).json({
-        success: true
-    });
+    try {
+        RecordManager.stop(sid);
+
+        res.status(200).json({
+            success: true
+        });
+    } catch (e) {
+        next(e)
+    }
 })
 
 app.head('/health-check', (req, res, next) => {

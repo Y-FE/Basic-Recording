@@ -14,5 +14,5 @@ exports.push = async function push(channel, timestamp, url, originUrl, formatInf
         url,
         origin_url: originUrl
     }
-    return axios.post(isMobileTest ? "http://mobile-test.yi-you.org/api/live-class/set-live-audio" : config.pushUrl, postData);
+    return axios.post(isMobileTest ? "http://mobile-test.yi-you.org/api/live-class/set-video" : config.pushUrl, postData);
 }
