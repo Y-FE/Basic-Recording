@@ -78,7 +78,42 @@ class RecordManager {
 
     subscribeEvents(recorder) {
         let { sdk, sid, appid, channel } = recorder;
-        sdk.on("leavechannel", async code => {
+        sdk.on("leavechannel", () => {
+            console.log('leave channel');
+        });
+        sdk.on("error", (err, stat) => {
+            console.error(`sdk stopped due to err code: ${err} stat: ${stat}`);
+            console.log(`stop recorder ${appid} ${channel} ${sid}`);
+            //clear recorder if error received
+            this.onCleanup(sid)
+        });
+        sdk.on("userleave", uid => {
+            console.log(`user leave ${uid}`);
+            //rearrange layout when user leaves
+        });
+        sdk.on("userjoin", uid => {
+            //rearrange layout when new user joins
+        });
+    }
+
+    stop(sid) {
+        let recorder = this.recorders[sid];
+        if(recorder) {
+            let {appid, channel} = recorder;
+            console.log(`stop recorder ${appid} ${channel} ${sid}`)
+            this.onCleanup(sid);
+        } else {
+            throw new Error('recorder not exists');
+        }
+    }
+
+    async onCleanup(sid) {
+        let recorder = this.recorders[sid];
+        if(recorder) {
+            let {sdk, channel} = recorder;
+            console.log(`releasing ${sid}`)
+            sdk.leaveChannel()
+            sdk.release()
             delete this.recorders[`${sid}`];
             try {
                 let recordPath = path.resolve(__dirname, `./output/${sid}`);
@@ -110,28 +145,6 @@ class RecordManager {
                 console.log(e);
                 console.log(`end record error: ${sid} ${channel}`);
             }
-        });
-        sdk.on("error", (err, stat) => {
-            console.error(`sdk stopped due to err code: ${err} stat: ${stat}`);
-            console.log(`stop recorder ${appid} ${channel} ${sid}`);
-            //clear recorder if error received
-        });
-        sdk.on("userleave", uid => {
-            console.log(`user leave ${uid}`);
-            //rearrange layout when user leaves
-        });
-        sdk.on("userjoin", uid => {
-            //rearrange layout when new user joins
-        });
-    }
-
-    stop(sid) {
-        let recorder = this.recorders[sid];
-        if (recorder) {
-            let { sdk, appid, channel } = recorder;
-            sdk.leaveChannel();
-            console.log(`stop recorder ${appid} ${channel} ${sid}`);
-            delete this.recorders[`${sid}`];
         } else {
             throw new Error("recorder not exists");
         }
