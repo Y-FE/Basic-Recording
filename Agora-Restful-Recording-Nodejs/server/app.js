@@ -1,6 +1,6 @@
 const express = require('express')
 const app = express()
-const port = 9640
+const port = 82
 const RecordManager = require('./recordManager')
 const bodyParser = require('body-parser')
 const { getToken } = require('./accessToken');
